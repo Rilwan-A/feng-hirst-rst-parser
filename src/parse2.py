@@ -1,0 +1,304 @@
+'''
+Created on 2014-01-17
+
+@author: Vanessa Wei Feng
+'''
+
+from segmenters.crf_segmenter import CRFSegmenter
+from treebuilder.build_tree_CRF import CRFTreeBuilder
+
+from optparse import OptionParser
+import argparse
+from copy import deepcopy
+import paths
+import os.path
+import re
+import sys
+from document.doc import Document
+import time
+import traceback
+from datetime import datetime
+
+from logs.log_writer import LogWriter
+from prep.preprocesser2 import Preprocesser
+
+import utils.serialize
+
+PARA_END_RE = re.compile(r' (<P>|<s>)$')
+
+
+class DiscourseParser():
+    def __init__(self, verbose,
+                 skip_parsing,
+                 global_features,
+                 output_dir = None, 
+                 log_writer = None):
+        self.verbose = verbose
+        self.skip_parsing = skip_parsing
+        self.global_features = global_features
+        self.save_preprocessed_doc = False
+        
+        self.output_dir = os.path.join(paths.OUTPUT_PATH, output_dir if output_dir is not None else '')
+        if not os.path.exists(self.output_dir):
+            print ('Output directory %s not exists, creating it now.' % self.output_dir)
+            os.makedirs(self.output_dir)
+        
+        self.log_writer = LogWriter(log_writer)
+        self.log_writer.write("===========")
+        
+        
+        self.feature_sets = 'gCRF'
+        
+        initStart = time.time()
+
+        self.preprocesser = None
+        try:
+            self.preprocesser = Preprocesser()
+        except Exception as e:
+            print ("*** Loading Preprocessing module failed...")
+            print (traceback.print_exc())
+
+            raise e
+        try:
+            self.segmenter = CRFSegmenter(_name = self.feature_sets, verbose = self.verbose, global_features = self.global_features)
+        except Exception as e:
+            print ("*** Loading Segmentation module failed...")
+            print (traceback.print_exc())
+
+            raise e
+        
+        try:        
+            if not self.skip_parsing:
+                self.treebuilder = CRFTreeBuilder(_name = self.feature_sets, verbose = self.verbose) 
+            else:
+                self.treebuilder = None
+        except Exception as e:
+            print ("*** Loading Tree-building module failed...")
+            print (traceback.print_exc())
+            raise e
+        
+        
+        initEnd = time.time()
+        print ('Finished initialization in %.2f seconds.\n' % (initEnd - initStart))
+        
+    def unload(self):
+        if self.preprocesser is not None:
+            self.preprocesser.unload()
+        
+        if not self.segmenter is None:
+            self.segmenter.unload()
+        
+        if not self.treebuilder is None:
+            self.treebuilder.unload()
+        
+    def parse(self, utterance):
+        result = None
+        
+        try:
+            preprocessStart = time.time()
+            doc = Document()                 
+            doc.preprocess(utterance, self.preprocesser, self.log_writer)               
+            
+            preprocessEnd = time.time()
+            
+            print ('Finished preprocessing in %.2f seconds.' % (preprocessEnd - preprocessStart))
+            self.log_writer.write('Finished preprocessing in %.2f seconds.' % (preprocessEnd - preprocessStart))
+                       
+            
+            print('')
+        except Exception as e:
+            print ("*** Preprocessing failed ***")
+            print (traceback.print_exc())
+               
+            raise e
+        
+        try:
+            if not doc.segmented:
+                segStart = time.time()
+                
+                self.segmenter.segment(doc)
+                
+                if self.verbose:
+                    print ('edus')
+                    for e in doc.edus:
+                        print (e)
+                    print(' ')
+                    print ('cuts')
+                    for cut in doc.cuts:
+                        print (cut)
+                    print(' ')
+                    print ('edu_word_segmentation')
+                
+                segEnd = time.time()
+                print ('Finished segmentation in %.2f seconds.' % (segEnd - segStart))
+                print ('Segmented into %d EDUs.' % len(doc.edus))
+                
+                
+                self.log_writer.write('Finished segmentation in %.2f seconds. Segmented into %d EDUs.' % ((segEnd - segStart), len(doc.edus)))
+               
+            else:
+                print ('Already segmented into %d EDUs.' % len(doc.edus))
+            
+            print(' ')
+        
+            if self.verbose:
+                for e in doc.edus:
+                    print (e)
+            
+                 
+        except Exception as e:
+            print ("*** Segmentation failed ***")
+            print (traceback.print_exc())
+               
+            raise e
+        
+        try:    
+            ''' Step 2: build text-level discourse tree '''
+            if self.skip_parsing:
+                outfname = os.path.join(self.output_dir, core_filename + ".edus")
+                print ('Output EDU segmentation result to %s' % outfname)
+                f_o = open(outfname, "w")
+                for sentence in doc.sentences:
+                    sent_id = sentence.sent_id
+                    edu_segmentation = doc.edu_word_segmentation[sent_id]
+                    i = 0
+                    sent_out = []
+                    for (j, token) in enumerate(sentence.tokens):
+                        sent_out.append(token.word)
+                        if j < len(sentence.tokens) - 1 and j == edu_segmentation[i][1] - 1:
+                            sent_out.append('EDU_BREAK')
+                            i += 1
+                    f_o.write(' '.join(sent_out) + '\n')
+                    
+                f_o.flush()
+                f_o.close()
+            else:
+                treeBuildStart = time.time()
+    #                
+                #outfname = os.path.join(self.output_dir, core_filename + ".tree")
+                
+                pt = self.treebuilder.build_tree(doc)
+                        
+                print ('Finished tree building.')
+    
+                if pt is None:
+                    print ("No tree could be built...")
+                        
+                    if not self.treebuilder is None:
+                        self.treebuilder.unload()
+    
+                    return -1
+                                 
+    #           Unescape the parse tree
+                if pt:
+                    doc.discourse_tree = pt
+                    result = deepcopy(pt)
+                    treeBuildEnd = time.time()
+                    
+                    print ('Finished tree building in %.2f seconds.' % (treeBuildEnd - treeBuildStart))
+                    self.log_writer.write('Finished tree building in %.2f seconds.' % (treeBuildEnd - treeBuildStart))
+                    
+                    for i in range(len(doc.edus)):
+                        edu_str = ' '.join(doc.edus[i])
+                        pt.__setitem__(pt.leaf_treeposition(i), '_!%s!_' % edu_str) # parse tree with escape symbols
+                        result.__setitem__(pt.leaf_treeposition(i), PARA_END_RE.sub('', edu_str)) # parse tree without escape symbols
+                    
+                    #out = pt.pformat()
+                    #print ('Output tree building result ')
+
+                    # f_o = open(outfname, "w")
+                    # f_o.write(out)
+                    # f_o.close()
+    
+                
+            
+            print (' ')
+        except Exception as e:
+            print (traceback.print_exc())
+            
+            raise e
+    
+        print ('===================================================')
+        return result
+
+def main(li_utterances,
+            verbose=False,
+            skip_parsing=False,
+            global_features=False,
+            logging=True):
+    parser = None
+    results = []
+
+    try:
+
+        output_dir = None
+        start_arg = 0
+        
+        log_writer = None
+        if logging:
+            log_fname = os.path.join(paths.LOGS_PATH, 'log_%s.txt' % (output_dir if output_dir else datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))).replace("\\","/")
+            log_writer = open(log_fname, 'w')
+
+        log_writer.write("00000000000")
+        parser = DiscourseParser(verbose, skip_parsing,
+                                global_features,
+                                 #output_dir = output_dir, 
+                                 log_writer = log_writer)
+        
+        files = []
+        skips = 0
+
+        utt_count = len(li_utterances)
+        print (f'Processing {str(utt_count)} utterances')
+        
+        for (i, utt) in enumerate(li_utterances):
+            print (f'Parsing utterance ({i} out of {utt_count})')
+                    
+            try:
+                result = parser.parse(utt)
+                results.append(result)
+                
+                parser.log_writer.write('===================================================')
+            except Exception as e:
+                results.append(None)
+                print (f'Some error occurred, when parsing utterance {i}')
+                pass
+           
+        parser.unload()
+        return results
+        
+    except Exception as e:
+        if not parser is None:
+            parser.unload()
+
+        raise Exception(traceback.print_exc())
+
+def parse_args():
+    usage = "Usage: %prog [options] input_file/dir"
+    
+    parse_obs = argparse.ArgumentParser(help=usage )
+    parser.add_argument("-v", "--verbose",
+                      action="store_true", dest="verbose", default=False,
+                      help="verbose mode")
+    parser.add_argument("-s", "--skip_parsing",
+                      action="store_true", dest="skip_parsing", default=False,
+                      help="Skip parsing, i.e., conduct segmentation only.")
+
+    parser.add_argument("-g", "--global_features",
+                         action="store_true", dest="global_features", default=True,
+                         help="Perform a second pass of EDU segmentation using global features.")
+    parser.add_argument("-l", "--logging",
+                         action="store_true", dest="logging", default=False,
+                         help="Perform logging while parsing.")
+
+
+    args = optParser.parse_args()
+
+
+    return args
+
+v = '1.0'
+if __name__ == '__main__':
+    options, args = parse_args()
+    main(options, args)
+    
