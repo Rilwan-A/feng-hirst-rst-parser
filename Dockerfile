@@ -1,11 +1,11 @@
-FROM alpine:3.8 as builder
+FROM alpine:3.9 as builder
 
 RUN apk update && \
     apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
     pip install nltk==3.4 pytest
 
 WORKDIR /opt
-RUN git clone https://github.com/arne-cl/feng-hirst-rst-parser.git
+RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
 
 # The Feng's original README claims that liblbfgs is included, but it's not
 WORKDIR /opt/feng-hirst-rst-parser/tools/crfsuite
@@ -29,7 +29,7 @@ RUN ./configure --prefix=$HOME/local --with-liblbfgs=$HOME/local && \
     chmod +x /opt/feng-hirst-rst-parser/tools/crfsuite/crfsuite-stdin
 
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 RUN apk update && \
     apk add py2-pip openjdk8-jre-base perl && \
@@ -43,5 +43,6 @@ COPY --from=builder /root/local .
 
 WORKDIR /opt/feng-hirst-rst-parser/src
 
-ENTRYPOINT ["/opt/feng-hirst-rst-parser/src/parser_wrapper.py"]
-CMD ["../texts/input_long.txt"]
+ENTRYPOINT ["/opt/feng-hirst-rst-parser/src/parser_wrapper2.py"]
+CMD ["Shut up janice, you've always been a hater","If you're here then how can you be there too"]
+#CMD ["../texts/input_long.txt"]
