@@ -252,7 +252,7 @@ def main(li_utterances,
         print ('Processing %s utterances' % str(utt_count) )
         
         for (i, utt) in enumerate(li_utterances):
-            print ('Parsing utterance %d out of %d)' (i,utt_count)  )
+            print ('Parsing utterance %d out of %d)' % (i,utt_count)  )
                     
             try:
                 result = parser.parse(utt)
@@ -261,7 +261,7 @@ def main(li_utterances,
                 parser.log_writer.write('===================================================')
             except Exception as e:
                 results.append(None)
-                print (f'Some error occurred, when parsing utterance {i}')
+                print ('Some error occurred, when parsing utterance %d' % i)
                 pass
            
         parser.unload()
