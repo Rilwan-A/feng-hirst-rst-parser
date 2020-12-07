@@ -2,6 +2,7 @@ FROM alpine:3.9 as builder
 
 RUN apk update && \
     apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
+    apk add bash \\
     pip install nltk==3.4 pytest argparse
 
 WORKDIR /opt
@@ -33,6 +34,7 @@ FROM alpine:3.9
 
 RUN apk update && \
     apk add py2-pip openjdk8-jre-base perl && \
+    apk add bash \
     pip install nltk==3.4 pytest
 
 WORKDIR /opt/feng-hirst-rst-parser
@@ -51,6 +53,6 @@ WORKDIR /opt/feng-hirst-rst-parser/src
 #     '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
 
 ENTRYPOINT ["/opt/feng-hirst-rst-parser/src/parser_wrapper2.py"]
-CMD ["li_utterance", '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
+CMD ["--li_utterance", '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
 
 #CMD ["../texts/input_long.txt"]
