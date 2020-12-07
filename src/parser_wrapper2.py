@@ -15,6 +15,7 @@ If the parer doesn't return a list of parses, a json of the list will be printed
 
 import os
 import sys
+import argparse
 
 from nltk.tree import ParentedTree
 #from parse2 import parse_args
@@ -98,4 +99,15 @@ def main(li_utterances,
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser( )
+    parser.add_argument('--li_utterances',type=str, 
+        default=json.dumps( ["Shut up janice, you've always been a hater","If you're here then how can you be there too"]) )
+    
+    parser.add_argument('--skip-parsing',type=bool, default=False)
+    parser.add_argument('--global_features',type=bool,default=True)
+    parser.add_argument('--logging',type=bool, default=True)
+    parser.add_argument('--redirect_output',type=bool,default=True)
+
+    args = parser.parse_args()
+    
+    main( **vars(args) )
