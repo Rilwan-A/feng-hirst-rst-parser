@@ -6,7 +6,11 @@ RUN apk update && \
     pip install nltk==3.4 pytest argparse
 
 WORKDIR /opt
+
+#TODO: Uncomment below for replicable version
 RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
+#RUN mkdir feng-hirst-rst-parser
+#ADD . /opt/feng-hirst-rst-parser
 
 # The Feng's original README claims that liblbfgs is included, but it's not
 WORKDIR /opt/feng-hirst-rst-parser/tools/crfsuite

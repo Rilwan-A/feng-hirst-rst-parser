@@ -101,7 +101,8 @@ def main(li_utterances,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( )
     parser.add_argument('--li_utterances',type=str, 
-        default=json.dumps( ["Shut up janice, you've always been a hater","If you're here then how can you be there too"]) )
+        default=json.dumps( ["Shut up janice, you've always been a hater","If you're here then how can you be there too"]),
+        )
     
     parser.add_argument('--skip-parsing',type=bool, default=False)
     parser.add_argument('--global_features',type=bool,default=True)

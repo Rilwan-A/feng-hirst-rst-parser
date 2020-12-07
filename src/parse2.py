@@ -249,10 +249,10 @@ def main(li_utterances,
         skips = 0
 
         utt_count = len(li_utterances)
-        print (f'Processing {str(utt_count)} utterances')
+        print ('Processing %s utterances' % str(utt_count) )
         
         for (i, utt) in enumerate(li_utterances):
-            print (f'Parsing utterance ({i} out of {utt_count})')
+            print ('Parsing utterance %d out of %d)' (i,utt_count)  )
                     
             try:
                 result = parser.parse(utt)

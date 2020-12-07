@@ -115,7 +115,7 @@ class Preprocesser:
 
     def sentence_splitting(self, str_utt, doc, log_writer=None):
         doc.sentences = []
-        cmd = ["perl", f"{os.path.join(paths.SSPLITTER_PATH,'boundary2.pl')}", "-d",f"{os.path.join(paths.SSPLITTER_PATH,'HONORIFICS')}","-i", f"{str_utt}" ]
+        cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'),"-i", str_utt ]
 
 
         p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
