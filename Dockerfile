@@ -2,7 +2,7 @@ FROM alpine:3.9 as builder
 
 RUN apk update && \
     apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
-    apk add bash \\
+    apk add bash && \
     pip install nltk==3.4 pytest argparse
 
 WORKDIR /opt
@@ -34,7 +34,7 @@ FROM alpine:3.9
 
 RUN apk update && \
     apk add py2-pip openjdk8-jre-base perl && \
-    apk add bash \
+    apk add bash && \
     pip install nltk==3.4 pytest
 
 WORKDIR /opt/feng-hirst-rst-parser
