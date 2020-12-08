@@ -115,12 +115,14 @@ class Preprocesser:
 
     def sentence_splitting(self, str_utt, doc, log_writer=None):
         doc.sentences = []
-        cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'),"-i", str_utt ]
+        
+        cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'), "-i", str_utt ]
+        #cmd = 'perl %s -d %s -i %s' % ( os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), os.path.join(paths.SSPLITTER_PATH, 'HONORIFICS'), str_utt )
 
 
-        p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+        p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
-        p.wait()
+        #p.wait()
         output, errdata = p.communicate()
 
         if len(errdata) == 0:

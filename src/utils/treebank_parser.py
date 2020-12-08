@@ -7,7 +7,10 @@ from nltk.tree import *
 
 from string import *
 import re
-from utils.yappsrt import *
+try:
+    from utils.yappsrt import *
+except Exception as e:
+    from yappsrt import *
 
 class TreebankScanner(Scanner):
     patterns = [

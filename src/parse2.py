@@ -23,6 +23,7 @@ from logs.log_writer import LogWriter
 from prep.preprocesser2 import Preprocesser
 
 import utils.serialize
+import utils.rst_lib
 
 PARA_END_RE = re.compile(r' (<P>|<s>)$')
 
@@ -200,7 +201,9 @@ class DiscourseParser():
                     
                     for i in range(len(doc.edus)):
                         edu_str = ' '.join(doc.edus[i])
+                        
                         pt.__setitem__(pt.leaf_treeposition(i), '_!%s!_' % edu_str) # parse tree with escape symbols
+
                         result.__setitem__(pt.leaf_treeposition(i), PARA_END_RE.sub('', edu_str)) # parse tree without escape symbols
                     
                     #out = pt.pformat()
@@ -212,14 +215,14 @@ class DiscourseParser():
     
                 
             
-            print (' ')
         except Exception as e:
             print (traceback.print_exc())
             
             raise e
     
         print ('===================================================')
-        return result
+        
+        return pt
 
 def main(li_utterances,
             verbose=False,
@@ -236,10 +239,14 @@ def main(li_utterances,
         
         log_writer = None
         if logging:
+            if not os.path.exists(paths.LOGS_PATH):
+                os.makedirs(paths.LOGS_PATH) 
             log_fname = os.path.join(paths.LOGS_PATH, 'log_%s.txt' % (output_dir if output_dir else datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))).replace("\\","/")
             log_writer = open(log_fname, 'w')
 
-        log_writer.write("00000000000")
+        if logging:
+            log_writer.write("00000000000")
+
         parser = DiscourseParser(verbose, skip_parsing,
                                 global_features,
                                  #output_dir = output_dir, 
@@ -257,8 +264,9 @@ def main(li_utterances,
             try:
                 result = parser.parse(utt)
                 results.append(result)
-                
-                parser.log_writer.write('===================================================')
+                if logging:
+                    parser.log_writer.write('===================================================')
+            
             except Exception as e:
                 results.append(None)
                 print ('Some error occurred, when parsing utterance %d' % i)
@@ -270,7 +278,7 @@ def main(li_utterances,
     except Exception as e:
         if not parser is None:
             parser.unload()
-
+        print str(e)
         raise Exception(traceback.print_exc())
 
 def parse_args():

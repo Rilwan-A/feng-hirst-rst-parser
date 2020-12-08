@@ -85,7 +85,7 @@ class CRFTreeBuilder:
 #        print self.use_contextual_features 
         # Check if only one EDU
         if len(doc.edus) == 1:
-            return [ParseTree("n/a", [doc.edus[0]])]
+            return ParseTree("n/a", [doc.edus[0]])
         
         for i in range(len(doc.sentences)):
             sentence = doc.sentences[i]

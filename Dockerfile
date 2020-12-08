@@ -8,9 +8,9 @@ RUN apk update && \
 WORKDIR /opt
 
 #TODO: Uncomment below for replicable version
-#RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
-RUN mkdir feng-hirst-rst-parser
-ADD . /opt/feng-hirst-rst-parser
+RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
+# RUN mkdir feng-hirst-rst-parser
+# ADD . /opt/feng-hirst-rst-parser
 
 # The Feng's original README claims that liblbfgs is included, but it's not
 WORKDIR /opt/feng-hirst-rst-parser/tools/crfsuite
@@ -50,13 +50,13 @@ COPY --from=builder /root/local .
 WORKDIR /opt/feng-hirst-rst-parser/src
 
 
-#ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh", "-c", "/bin/bash"]
 
-# CMD ["parser_wrapper2.py",\
-#     "-li_utterance",\
-#     '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
+CMD ["python", "parser_wrapper2.py",\
+    "-li_utterance",\
+    '["Shut up janice, you have always been a hater", "If you are here then how can you be there too"]']
 
-ENTRYPOINT ["/opt/feng-hirst-rst-parser/src/parser_wrapper2.py"]
-CMD ["--li_utterance", '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
+# ENTRYPOINT ["/opt/feng-hirst-rst-parser/src/parser_wrapper2.py"]
+# CMD ["--li_utterance", '["Shut up janice, you\'ve always been a hater", "If you\'re here then how can you be there too"]']
 
 #CMD ["../texts/input_long.txt"]

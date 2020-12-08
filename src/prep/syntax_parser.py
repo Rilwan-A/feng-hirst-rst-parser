@@ -20,9 +20,10 @@ class SyntaxParser:
         # -mx150m
         #cmd = 'java -Xmx1000m -cp "%s/*" ParserDemo' % paths.STANFORD_PARSER_PATH
 
+        cmd = ['java', '-Xmx1000m', '-cp', os.path.join(paths.STANFORD_PARSER_PATH,"*"), 'ParserDemo' ]
         #print("SyntaxParser cmd:", cmd)
-        cmd = ['java', '-Xmx1000m', '-cp', f'{os.path.join(paths.STANFORD_PARSER_PATH,"*")}', 'ParserDemo' ]
-        self.syntax_parser = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+
+        self.syntax_parser = subprocess.Popen(cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
     
         init = self.syntax_parser.stderr.readline()
         if not init.startswith(b'Loading parser from serialized file'):
@@ -34,7 +35,14 @@ class SyntaxParser:
         Parses a sentence s
         """
         #print "%s\n" % s.strip()
-        self.syntax_parser.stdin.write(b"%s\n" % s.strip())
+        
+        try:
+            self.syntax_parser.stdin.write("%s\n" % s.strip())
+        except IOError as e:
+#            e.message = e.message + 
+
+            raise Exception( str(e) + " \n  string: {}".format(s) )
+
         self.syntax_parser.stdin.flush()
         
         # Read stderr anyway to avoid problems

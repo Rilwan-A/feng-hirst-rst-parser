@@ -19,12 +19,15 @@ class CRFClassifier:
         # self.classifier_cmd = '%s/crfsuite-stdin tag -pi -m %s -' % (paths.CRFSUITE_PATH, 
 		# 					 os.path.join(self.model_path, self.model_fname)
 
-        self.classifier_cmd = [ f"{paths.CRFSUITE_PATH}/crfsuite-stdin", "tag", "-pi", "-m",
-                                os.path.join(self.model_path, self.model_fname), "-" ]    
+        self.classifier_cmd = [ "{}/crfsuite-stdin".format(paths.CRFSUITE_PATH), "tag", "-pi", "-m",
+                                 os.path.join(self.model_path, self.model_fname), "-" ]    
+
+        # self.classifier_cmd = [ os.path.join("{}".format(paths.CRFSUITE_PATH), "crfsuite-stdin"), "tag", "-pi", "-m",
+        #                         os.path.join(self.model_path, self.model_fname) ]    
 
 #        print self.classifier_cmd
-        self.classifier = subprocess.Popen(self.classifier_cmd, shell = True, stdin = subprocess.PIPE, 
-                            stdout = subprocess.PIPE, stderr = subprocess.PIPE, bufsize = io.DEFAULT_BUFFER_SIZE*3)
+        self.classifier = subprocess.Popen(self.classifier_cmd, shell = False, stdin = subprocess.PIPE, 
+                            stdout = subprocess.PIPE, stderr = subprocess.PIPE, bufsize = io.DEFAULT_BUFFER_SIZE*5)
         
         if self.classifier.poll():
             raise OSError('Could not create classifier subprocess, with error info:\n%s' % self.classifier.stderr.readline())
@@ -46,8 +49,12 @@ class CRFClassifier:
             list of predition tuples (label, probability)
         """
         self.classifier.stdin.write( ('\n'.join(vectors) + "\n\n").encode() )
+        self.classifier.stdin.flush()
 
-        self.classifier.stdin.close()
+        try:
+            self.classifier.stdin.close()
+        except IOError as e:
+            raise Exception( str(e) + " \n  string: {}".format([l.decode('utf-8') for l in self.classifier.stdout.readlines()]) )
 
         lines = [l.decode('utf-8') for l in self.classifier.stdout.readlines()]
         
@@ -55,6 +62,7 @@ class CRFClassifier:
             raise OSError('crf_classifier subprocess died')
         
         predictions = []
+        
         for line in lines[1 : ]:
             line = line.strip()
             if line != '':
@@ -66,7 +74,7 @@ class CRFClassifier:
         seq_prob = float(lines[0].split('\t')[1])
 
         # re-create classifier (because we had to close STDIN earlier)
-        self.classifier = subprocess.Popen(self.classifier_cmd, shell = True, stdin = subprocess.PIPE, 
+        self.classifier = subprocess.Popen(self.classifier_cmd, shell = False, stdin = subprocess.PIPE, 
                             stdout = subprocess.PIPE, stderr = subprocess.PIPE, bufsize = io.DEFAULT_BUFFER_SIZE*4)
         return seq_prob, predictions
     

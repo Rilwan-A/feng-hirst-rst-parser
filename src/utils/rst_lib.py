@@ -12,8 +12,15 @@ from operator import itemgetter
 from trees.parse_tree import ParseTree
 from nltk.tree import Tree
 #from nltk.draw.tree import *
-from utils.RST_Classes import *
-import utils.treebank_parser
+try:
+    from utils.RST_Classes import *
+    import utils.treebank_parser
+except Exception as e:
+    from RST_Classes import *
+    import treebank_parser
+
+
+
 
 def locate(pattern, root=os.getcwd()):
     for path, dirs, files in os.walk(root):

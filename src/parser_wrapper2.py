@@ -15,12 +15,13 @@ If the parer doesn't return a list of parses, a json of the list will be printed
 
 import os
 import sys
-import argparse
+
 
 from nltk.tree import ParentedTree
 #from parse2 import parse_args
 from parse2 import main as feng_main
-
+import argparse
+import json
 
 class ParserException(Exception):
     pass
@@ -50,14 +51,14 @@ def main(li_utterances,
     """[summary]
 
     Args:
-        li_utterances ([type]): [description]
+        li_utterances ([type]): [json encoded li-utteranc]
 
     Returns:
         [type]: [description]
     """
     parser_stdout_filepath = 'parser.stdout'
-
-    args = {
+    li_utterances = json.loads(li_utterances)
+    kwargs = {
         'verbose':verbose,
         'skip_parsing':skip_parsing,
         'global_features':global_features,
@@ -79,7 +80,7 @@ def main(li_utterances,
         old_stdout = sys.stdout
         sys.stdout = open(parser_stdout_filepath, "w", buffering=1)
     try:
-        results = feng_main(li_utterances, **args) #li of parse trees
+        results = feng_main(li_utterances, **kwargs) #li of parse trees
 
         assert len(results) != 0
 
@@ -87,6 +88,8 @@ def main(li_utterances,
         e.args += ("Expected parse trees as a result, but got: {0}.\n"
              "Parser STDOUT was:\n{1}").format(
                 results, get_parser_stdout(parser_stdout_filepath))
+        raise e
+
     finally:
         if redirect_output:
             sys.stdout.close()
@@ -94,8 +97,17 @@ def main(li_utterances,
         pass
 
     #parse_tree = results[0].__repr__() + "\n"
+
     # sys.stdout.write(parse_tree)
-    return results
+    # sys.stdout.write(str(type(results[0])) ) 
+    # sys.stdout.write(str(type(results)))
+    # sys.stdout.write(str( results[0].__class__.__module__))
+
+
+    escaped_parse_trees = json.dumps([pt.pformat() for pt in results])
+    #return results
+    sys.stdout.write(escaped_parse_trees)
+    return escaped_parse_trees
 
 
 if __name__ == "__main__":
@@ -106,7 +118,7 @@ if __name__ == "__main__":
     
     parser.add_argument('--skip-parsing',type=bool, default=False)
     parser.add_argument('--global_features',type=bool,default=True)
-    parser.add_argument('--logging',type=bool, default=True)
+    parser.add_argument('--logging',type=bool, default=False)
     parser.add_argument('--redirect_output',type=bool,default=True)
 
     args = parser.parse_args()
