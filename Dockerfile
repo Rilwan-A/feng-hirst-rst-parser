@@ -3,14 +3,13 @@ FROM alpine:3.9 as builder
 RUN apk update && \
     apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
     apk add bash && \
-    pip install nltk==3.4 pytest argparse
+    pip install nltk==3.4
 
 WORKDIR /opt
 
-#TODO: Uncomment below for replicable version
-RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
-# RUN mkdir feng-hirst-rst-parser
-# ADD . /opt/feng-hirst-rst-parser
+#RUN git clone https://github.com/Akanni96/feng-hirst-rst-parser.git
+RUN mkdir feng-hirst-rst-parser
+ADD . /opt/feng-hirst-rst-parser
 
 # The Feng's original README claims that liblbfgs is included, but it's not
 WORKDIR /opt/feng-hirst-rst-parser/tools/crfsuite
