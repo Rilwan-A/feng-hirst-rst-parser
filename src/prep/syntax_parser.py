@@ -78,10 +78,10 @@ class SyntaxParser:
                 else:
                     penn_parse_result = penn_parse_result + cur_line.strip()
             '''result = result + cur_line.strip()'''
-        dep_parse_result = "\n".join(dep_parse_results)
+        dep_parse_result = "\n".join(dep_parse_results).encode('utf-8')
         
-        return (str(penn_parse_result), '\n'.join(dep_parse_results))
-    
+        #return (str(penn_parse_result), '\n'.join(dep_parse_results))
+        return (penn_parse_result.encode('utf-8'), '\n'.join(dep_parse_results))
     
     def poll(self):
         """

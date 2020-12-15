@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on 2014-01-11
 
 @author: Wei
 '''
+import os
+os.environ["PYTHONIOENCODING"] = "utf-8"
 from features.segmenter_feature_writer import SegmenterFeatureWriter
 from classifiers.crf_classifier import CRFClassifier
 import paths

@@ -3,6 +3,7 @@ Created on 2014-01-17
 
 @author: Vanessa Wei Feng
 '''
+import os
 
 from segmenters.crf_segmenter import CRFSegmenter
 from treebuilder.build_tree_CRF import CRFTreeBuilder

@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+import os
+
+import sys
+# reload(sys)
+# sys.setdefaultencoding("utf-8")
 
 """
 Simple wrapper around the Feng-Hirst parser, used as an entry point for
@@ -12,10 +19,6 @@ In contrast to parser_wrapper.py, this script accepts a list of input files.
 Since parse.py is quite chatty, it's stdout will be supressed and stored in a file.
 If the parer doesn't return a list of parses, a json of the list will be printed to stderr
 """
-
-import os
-import sys
-
 
 from nltk.tree import ParentedTree
 #from parse2 import parse_args
@@ -104,7 +107,7 @@ def main(li_utterances,
     # sys.stdout.write(str( results[0].__class__.__module__))
 
 
-    escaped_parse_trees = json.dumps([pt.pformat() for pt in results])
+    escaped_parse_trees = json.dumps([pt.pformat(parens='{}' ) for pt in results])
     #return results
     sys.stdout.write(escaped_parse_trees)
     return escaped_parse_trees

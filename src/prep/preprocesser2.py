@@ -3,6 +3,9 @@ Created on 2014-01-18
 
 @author: Wei
 '''
+import os
+os.environ["PYTHONIOENCODING"] = "utf-8"
+
 import subprocess
 import paths
 from document.sentence import Sentence

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import os
 import subprocess
 import paths
 import os.path
@@ -27,7 +30,8 @@ class CRFClassifier:
 
 #        print self.classifier_cmd
         self.classifier = subprocess.Popen(self.classifier_cmd, shell = False, stdin = subprocess.PIPE, 
-                            stdout = subprocess.PIPE, stderr = subprocess.PIPE, bufsize = io.DEFAULT_BUFFER_SIZE*5)
+                            stdout = subprocess.PIPE, stderr = subprocess.PIPE, bufsize = io.DEFAULT_BUFFER_SIZE*5,
+ )
         
         if self.classifier.poll():
             raise OSError('Could not create classifier subprocess, with error info:\n%s' % self.classifier.stderr.readline())
@@ -36,28 +40,39 @@ class CRFClassifier:
 
     def classify(self, vectors):
         """
-        Parameters
-        ----------
-        vectors : list of str
-            list of features, e.g. 'LEAF\tNum_EDUs=1\r'
-        
-        Returns
-        -------
-        seq_prob : float
-            sequence probability
-        predictions : list of (str, float) tuples
-            list of predition tuples (label, probability)
+            Parameters
+            ----------
+            vectors : list of str
+                list of features, e.g. 'LEAF\tNum_EDUs=1\r'
+            
+            Returns
+            -------
+            seq_prob : float
+                sequence probability
+            predictions : list of (str, float) tuples
+                list of predition tuples (label, probability)
         """
-        self.classifier.stdin.write( ('\n'.join(vectors) + "\n\n").encode() )
-        self.classifier.stdin.flush()
+        _ =  '\n'.join( vectors ) + "\n\n"
+        self.classifier.stdin.write( _ ) 
+        #self.classifier.stdin.flush()
 
         try:
             self.classifier.stdin.close()
         except IOError as e:
             raise Exception( str(e) + " \n  string: {}".format([l.decode('utf-8') for l in self.classifier.stdout.readlines()]) )
 
-        lines = [l.decode('utf-8') for l in self.classifier.stdout.readlines()]
+        #lines = [l.decode('utf-8') for l in self.classifier.stdout.readlines()]
+        lines = [l.decode('ascii') for l in self.classifier.stdout.readlines()]
+        #lines = self.classifier.stdout.readlines()
         
+        # try:
+        #     #stdout, stderr = self.classifier.communicate( ( '\n'.join( [ vec for vec in vectors] ) + "\n\n") )
+        #     stdout, stderr = self.classifier.communicate( ( '\n'.join( vectors ) + "\n\n") )
+        # except IOError as e:
+        #     raise Exception( str(e) + " \n\n  string: {}".format([l.decode('utf-8') for l in self.classifier.stdout.readlines()]) )
+
+        # lines = [l.decode('utf-8') for l in stdout.splitlines() ]
+
         if self.classifier.poll():
             raise OSError('crf_classifier subprocess died')
         
