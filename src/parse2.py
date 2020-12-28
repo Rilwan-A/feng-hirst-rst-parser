@@ -279,7 +279,7 @@ def main(li_utterances,
     except Exception as e:
         if not parser is None:
             parser.unload()
-        print str(e)
+        print(str(e))
         raise Exception(traceback.print_exc())
 
 def parse_args():

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
 import os
 
 import sys
@@ -43,7 +45,7 @@ def get_parser_stdout(parser_stdout_filepath):
 #     return os.path.join("../texts/results", "{}.tree".format(input_filename))
 
 
-def main(li_utterances,
+def main(json_li_li_utterances,
             verbose=False,
             skip_parsing=False,
             global_features=True,
@@ -58,55 +60,52 @@ def main(li_utterances,
         [type]: [description]
     """
     parser_stdout_filepath = 'parser.stdout'
-    li_utterances = json.loads(li_utterances)
+    li_li_utterances = json.loads(json_li_li_utterances)
     kwargs = {
         'verbose':verbose,
         'skip_parsing':skip_parsing,
         'global_features':global_features,
         'logging':logging
     }
-    # if len(args) != 1:
-    #     sys.stderr.write("Please provide (only) one file to parse.")
-    #     sys.exit(1)
 
-    # output_filepath = get_output_filepath(args)
-
-    # if os.path.isfile(output_filepath):
-    #     # You can't parse a file with the same name twice, unless you
-    #     # remove the parser output file first.
-    #     os.remove(output_filepath)
-
+    li_li_parse_trees= []
+    for li_utterances in li_li_utterances:
     # re-route the print/stdout output of the parser to a file
-    if redirect_output:
-        old_stdout = sys.stdout
-        sys.stdout = open(parser_stdout_filepath, "w", buffering=1)
-    try:
-        results = feng_main(li_utterances, **kwargs) #li of parse trees
-
-        assert len(results) != 0
-
-    except AssertionError as e:
-        e.args += ("Expected parse trees as a result, but got: {0}.\n"
-             "Parser STDOUT was:\n{1}").format(
-                results, get_parser_stdout(parser_stdout_filepath))
-        raise e
-
-    finally:
         if redirect_output:
-            sys.stdout.close()
-            sys.stdout = old_stdout
-        pass
+            old_stdout = sys.stdout
+            sys.stdout = open(parser_stdout_filepath, "w", buffering=1)
+        try:
+            results = feng_main(li_utterances, **kwargs) #li of parse trees
 
-    escaped_parse_trees = json.dumps([pt.pformat(parens='{}' ) for pt in results])
-    sys.stdout.write(escaped_parse_trees)
-    return escaped_parse_trees
+            assert len(results) != 0
+
+        except AssertionError as e:
+            e.args += ("Expected parse trees as a result, but got: {0}.\n"
+                "Parser STDOUT was:\n{1}").format(
+                    results, get_parser_stdout(parser_stdout_filepath))
+            results = ''
+
+        finally:
+            if redirect_output:
+                sys.stdout.close()
+                sys.stdout = old_stdout
+            pass
+            
+        
+        li_parse_trees = [pt.pformat(parens='{}' ) for pt in results]
+        li_li_parse_trees.append(li_parse_trees)
+
+    escaped_li_li_parse_trees = json.dumps(li_li_parse_trees)
+    
+    sys.stdout.write(escaped_li_li_parse_trees)
+    return escaped_li_li_parse_trees
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser( )
-    parser.add_argument('--li_utterances',type=str, 
-        default=json.dumps( ["Shut up janice, you've always been a hater","If you're here then how can you be there too"]),
-        )
+    parser.add_argument('--json_li_li_utterances',type=str, 
+        default=json.dumps( [["Shut up janice, you've always been a hater","If you're here then how can you be there too"],
+            ["Shut up janice, you've always been a hater","If you're here then how can you be there too"] ]) )
     
     parser.add_argument('--skip-parsing',type=bool, default=False)
     parser.add_argument('--global_features',type=bool,default=True)
