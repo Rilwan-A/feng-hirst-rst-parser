@@ -84,6 +84,12 @@ class Preprocesser:
         # self.parse_single_sentence(raw_text) returns different result from 
         # self.syntax_parser.parse_sentence(raw_text)
         
+        if type(parse_tree_str) is bytes:
+            parse_tree_str = str(parse_tree_str, "utf-8")
+        
+        if type(deps_str) is bytes:
+            deps_str = str(deps_str, "utf-8")
+
         parse = LexicalizedTree.fromstring(parse_tree_str, leaf_pattern = '(?<=\\s)[^\)\(]+')  
         sentence.set_unlexicalized_tree(parse)
         

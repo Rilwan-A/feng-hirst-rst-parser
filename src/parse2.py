@@ -146,7 +146,6 @@ class DiscourseParser():
             if self.verbose:
                 for e in doc.edus:
                     print (e)
-            
                  
         except Exception as e:
             print ("*** Segmentation failed ***")
@@ -157,26 +156,27 @@ class DiscourseParser():
         try:    
             ''' Step 2: build text-level discourse tree '''
             if self.skip_parsing:
-                outfname = os.path.join(self.output_dir, core_filename + ".edus")
-                print ('Output EDU segmentation result to %s' % outfname)
-                f_o = open(outfname, "w")
+
+                text_out = []
                 for sentence in doc.sentences:
                     sent_id = sentence.sent_id
                     edu_segmentation = doc.edu_word_segmentation[sent_id]
                     i = 0
-                    sent_out = []
-                    for (j, token) in enumerate(sentence.tokens):
-                        sent_out.append(token.word)
-                        if j < len(sentence.tokens) - 1 and j == edu_segmentation[i][1] - 1:
-                            sent_out.append('EDU_BREAK')
-                            i += 1
-                    f_o.write(' '.join(sent_out) + '\n')
                     
-                f_o.flush()
-                f_o.close()
+                    for (j, token) in enumerate(sentence.tokens):
+                        text_out.append(token.word)
+                        if j < len(sentence.tokens) - 1 and j == edu_segmentation[i][1] - 1:
+                            text_out.append('EDU_BREAK')
+                            i += 1
+                    text_out.append('EDU_BREAK')
+                        
+                    #f_o.write(' '.join(sent_out) + '\n')
+                
+                output = text_out
+                    
             else:
                 treeBuildStart = time.time()
-    #                
+                    
                 #outfname = os.path.join(self.output_dir, core_filename + ".tree")
                 
                 pt = self.treebuilder.build_tree(doc)
@@ -191,7 +191,7 @@ class DiscourseParser():
     
                     return -1
                                  
-    #           Unescape the parse tree
+                #Unescape the parse tree
                 if pt:
                     doc.discourse_tree = pt
                     result = deepcopy(pt)
@@ -213,17 +213,17 @@ class DiscourseParser():
                     # f_o = open(outfname, "w")
                     # f_o.write(out)
                     # f_o.close()
-    
+                    output = pt
                 
-            
+      
         except Exception as e:
             print (traceback.print_exc())
-            
             raise e
+
     
         print ('===================================================')
         
-        return pt
+        return output
 
 def main(li_utterances,
             verbose=False,

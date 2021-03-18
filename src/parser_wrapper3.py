@@ -74,6 +74,7 @@ def main(json_li_li_utterances,
         if redirect_output:
             old_stdout = sys.stdout
             sys.stdout = open(parser_stdout_filepath, "w", buffering=1)
+            
         try:
             results = feng_main(li_utterances, **kwargs) #li of parse trees
 
@@ -91,14 +92,26 @@ def main(json_li_li_utterances,
                 sys.stdout = old_stdout
             pass
             
-        
-        li_parse_trees = [pt.pformat(parens='{}' ) for pt in results]
-        li_li_parse_trees.append(li_parse_trees)
+        if skip_parsing:
+            li_segtext= results
+            escaped_li_segtext = json.dumps(li_segtext)            
+            
+            if redirect_output == False:
+                sys.stdout.write(escaped_li_segtext)
 
-    escaped_li_li_parse_trees = json.dumps(li_li_parse_trees)
-    
-    sys.stdout.write(escaped_li_li_parse_trees)
-    return escaped_li_li_parse_trees
+            output = li_segtext
+
+        else:
+            li_parse_trees = [pt.pformat(parens='{}' ) for pt in results]
+            li_li_parse_trees.append(li_parse_trees)
+            escaped_li_li_parse_trees = json.dumps(li_li_parse_trees)
+            
+            if redirect_output == False:            
+                sys.stdout.write(escaped_li_li_parse_trees)
+
+            output = li_li_parse_trees
+
+    return output
 
 
 if __name__ == "__main__":
@@ -107,11 +120,12 @@ if __name__ == "__main__":
         default=json.dumps( [["Shut up janice, you've always been a hater","If you're here then how can you be there too"],
             ["Shut up janice, you've always been a hater","If you're here then how can you be there too"] ]) )
     
-    parser.add_argument('--skip-parsing',type=bool, default=False)
+    parser.add_argument('--skip_parsing',type=bool, default=False)
     parser.add_argument('--global_features',type=bool,default=True)
     parser.add_argument('--logging',type=bool, default=False)
-    parser.add_argument('--redirect_output',type=bool,default=True)
+    parser.add_argument('--redirect_output',type=bool,default=True) 
 
     args = parser.parse_args()
     
     main( **vars(args) )
+

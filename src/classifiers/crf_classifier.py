@@ -52,9 +52,15 @@ class CRFClassifier:
             predictions : list of (str, float) tuples
                 list of predition tuples (label, probability)
         """
-        _ =  '\n'.join( vectors ) + "\n\n"
-        self.classifier.stdin.write( _ ) 
-        #self.classifier.stdin.flush()
+        try:
+            _ =  '\n'.join( vectors ) + "\n\n"
+            self.classifier.stdin.write( _ ) 
+        
+        except TypeError as e:
+            _ =   '\n'.join( vectors ) + "\n\n"
+            _ = _.encode('utf-8')
+            self.classifier.stdin.write( _ ) 
+            #self.classifier.stdin.flush()
 
         try:
             self.classifier.stdin.close()

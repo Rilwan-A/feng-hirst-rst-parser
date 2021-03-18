@@ -1,6 +1,9 @@
 import os.path
 
-ROOT_PATH = '/'.join(os.path.split(os.getcwd())[ : -1])
+if "rl_conv" in os.getcwd():
+    ROOT_PATH = "/home/u1862646/01_Mcv/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+else:
+    ROOT_PATH = '/'.join(os.path.split(os.getcwd())[ : -1])
 
 
 PARSED_TEXTS_PATH = os.path.join(ROOT_PATH, 'texts/parsed_texts/')

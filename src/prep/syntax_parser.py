@@ -19,9 +19,12 @@ class SyntaxParser:
     def __init__(self):
         # -mx150m
         #cmd = 'java -Xmx1000m -cp "%s/*" ParserDemo' % paths.STANFORD_PARSER_PATH
-
-        cmd = ['java', '-Xmx1000m', '-cp', os.path.join(paths.STANFORD_PARSER_PATH,"*"), 'ParserDemo' ]
-        #print("SyntaxParser cmd:", cmd)
+        
+        path_ = os.path.join(paths.STANFORD_PARSER_PATH,"*")
+        
+        cmd = ['java', '-Xmx1000m', '-cp', path_ , 'ParserDemo' ]
+        
+        print("SyntaxParser cmd:", cmd)
 
         self.syntax_parser = subprocess.Popen(cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
     
@@ -38,9 +41,11 @@ class SyntaxParser:
         
         try:
             self.syntax_parser.stdin.write("%s\n" % s.strip())
-        except IOError as e:
-#            e.message = e.message + 
+        
+        except TypeError as e:
+            self.syntax_parser.stdin.write(b"%s\n" % s.strip())
 
+        except IOError as e:
             raise Exception( str(e) + " \n  string: {}".format(s) )
 
         self.syntax_parser.stdin.flush()
