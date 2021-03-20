@@ -50,11 +50,11 @@ def main(json_li_li_utterances,
             skip_parsing=False,
             global_features=True,
             logging=False,
-            redirect_output=False):
+            redirect_output=0):
     """[summary]
 
     Args:
-        li_utterances ([type]): [json encoded li-utteranc]
+        li_utterances ([type]): [json encoded li_utterances]
 
     Returns:
         [type]: [description]
@@ -68,12 +68,17 @@ def main(json_li_li_utterances,
         'logging':logging
     }
 
+    li_li_segtext = []
     li_li_parse_trees= []
     for li_utterances in li_li_utterances:
     # re-route the print/stdout output of the parser to a file
-        if redirect_output:
+        if redirect_output in [0,1]:
             old_stdout = sys.stdout
             sys.stdout = open(parser_stdout_filepath, "w", buffering=1)
+
+        elif redirect_output in [2,3]:
+            old_stdout = sys.stdout
+            sys.stdout = open(os.devnull, 'w', buffering=1)
             
         try:
             results = feng_main(li_utterances, **kwargs) #li of parse trees
@@ -87,31 +92,41 @@ def main(json_li_li_utterances,
             results = ''
 
         finally:
-            if redirect_output:
+            if redirect_output in [1,2,3]:
                 sys.stdout.close()
-                sys.stdout = old_stdout
+                sys.stdout = old_stdout                
             pass
             
         if skip_parsing:
             li_segtext= results
-            escaped_li_segtext = json.dumps(li_segtext)            
-            
-            if redirect_output == False:
-                sys.stdout.write(escaped_li_segtext)
+            #escaped_li_segtext = json.dumps(li_segtext)            
+            li_li_segtext.append( li_segtext )
 
-            output = li_segtext
 
         else:
             li_parse_trees = [pt.pformat(parens='{}' ) for pt in results]
             li_li_parse_trees.append(li_parse_trees)
-            escaped_li_li_parse_trees = json.dumps(li_li_parse_trees)
-            
-            if redirect_output == False:            
-                sys.stdout.write(escaped_li_li_parse_trees)
 
+
+    if redirect_output in [0,1,2]:
+        if skip_parsing:
+            output = json.dumps(li_li_segtext) 
+        else:
+            output = json.dumps(li_li_parse_trees)
+        
+        sys.stdout.write(output)
+        return None
+    
+    else:
+        if skip_parsing:
+            output = li_li_segtext
+        else:
             output = li_li_parse_trees
+        
+        sys.stdout.write(output)
+        return None
 
-    return output
+        
 
 
 if __name__ == "__main__":
@@ -120,10 +135,15 @@ if __name__ == "__main__":
         default=json.dumps( [["Shut up janice, you've always been a hater","If you're here then how can you be there too"],
             ["Shut up janice, you've always been a hater","If you're here then how can you be there too"] ]) )
     
-    parser.add_argument('--skip_parsing',type=bool, default=False)
-    parser.add_argument('--global_features',type=bool,default=True)
-    parser.add_argument('--logging',type=bool, default=False)
-    parser.add_argument('--redirect_output',type=bool,default=True) 
+    parser.add_argument('--skip_parsing',type=lambda x: bool(int(x)), default=False)
+    parser.add_argument('--global_features',type=lambda x: bool(int(x)),default=True)
+    parser.add_argument('--logging',type=lambda x: bool(int(x)), default=False)
+    parser.add_argument('--redirect_output',type=int, default=0,
+                            help="""Mode 0: All output goes to stdout 
+                                \n Mode 1: Redirect intemediary outputs to a file. Final output goes to stdout 
+                                \n Mode 2: Redirect intemediary output to os.devnull. Returns output to stdout 
+                                \n Mode 3: Redirect intemediary and final output to os.devnull. Returns output as python object""")
+    #parser.add_argument('--redirect_output',type=lambda x: bool(int(x)),default=True) 
 
     args = parser.parse_args()
     

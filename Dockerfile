@@ -1,7 +1,10 @@
-FROM alpine:3.9 as builder
+# FROM alpine:3.9 as builder
+FROM python:3.8-alpine as builder
 
 RUN apk update && \
-    apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
+    # apk add git py2-setuptools py2-pip build-base openjdk8-jre perl && \
+    # apk add git python3-setuptools python3-pip 
+    apk add git build-base openjdk8-jre perl && \
     apk add bash && \
     pip install nltk==3.4
 
@@ -33,10 +36,12 @@ RUN ./configure --prefix=$HOME/local --with-liblbfgs=$HOME/local && \
     chmod +x /opt/feng-hirst-rst-parser/tools/crfsuite/crfsuite-stdin
 
 
-FROM alpine:3.9
+#FROM alpine:3.9
+FROM python:3.8-alpine
 
 RUN apk update && \
-    apk add py2-pip openjdk8-jre-base perl && \
+    # apk add py3-pip openjdk8-jre-base perl && \
+    apk add openjdk8-jre-base perl && \
     apk add bash && \
     pip install nltk==3.4 pytest
 

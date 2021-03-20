@@ -201,6 +201,12 @@ class DiscourseParser():
                     self.log_writer.write('Finished tree building in %.2f seconds.' % (treeBuildEnd - treeBuildStart))
                     
                     for i in range(len(doc.edus)):
+                        
+                        # Converting each edu to a string
+                        for j in range(len(doc.edus[i])):
+                            if type(doc.edus[i][j]) != str:
+                                doc.edus[i][j] = str(doc.edus[i][j],"utf-8")
+
                         edu_str = ' '.join(doc.edus[i])
                         
                         pt.__setitem__(pt.leaf_treeposition(i), '_!%s!_' % edu_str) # parse tree with escape symbols
