@@ -128,13 +128,13 @@ class Preprocesser:
         cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'), "-i", str_utt ]
         #cmd = 'perl %s -d %s -i %s' % ( os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), os.path.join(paths.SSPLITTER_PATH, 'HONORIFICS'), str_utt )
 
-
         p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)
 
         #p.wait()
         output, errdata = p.communicate()
-
+        #print(output)
         if len(errdata) == 0:
+            
             raw_paras = output.strip().split(b'\n\n')
             seg_sents = []
             for raw_string in raw_paras:
@@ -151,6 +151,7 @@ class Preprocesser:
                         seg_sents.append((raw_sent, i == len(raw_sentences) - 1))
         else:
             raise NameError("*** Sentence splitter crashed, with trace %s..." % errdata)
+        
         
         print(seg_sents)
         for (i, (raw_text, end_of_para)) in enumerate(seg_sents):

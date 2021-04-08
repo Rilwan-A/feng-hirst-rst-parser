@@ -1,7 +1,11 @@
 import os.path
+import inspect
 
 if "rl_conv" in os.getcwd():
     ROOT_PATH = "/home/u1862646/01_Mcv/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+    #curr_fp = inspect.getsourcefile()
+    curr_fp = os.path.abspath(__file__)
+    ROOT_PATH = os.path.dirname( os.path.dirname( curr_fp ) )
 else:
     ROOT_PATH = '/'.join(os.path.split(os.getcwd())[ : -1])
 
