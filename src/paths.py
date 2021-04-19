@@ -2,13 +2,25 @@ import os.path
 import inspect
 
 if "rl_conv" in os.getcwd():
-    ROOT_PATH = "/home/u1862646/01_Mcv/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
-    #curr_fp = inspect.getsourcefile()
-    curr_fp = os.path.abspath(__file__)
-    ROOT_PATH = os.path.dirname( os.path.dirname( curr_fp ) )
+    ROOT_PATH1 = "/home/u1862646/01_Mcv/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+    ROOT_PATH2 = "C:/Users/Rilwa/01_Mcv/MasteringConversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+    ROOT_PATH3 = "/home/akanni/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+
+    if os.path.exists( ROOT_PATH1 ):
+        ROOT_PATH = ROOT_PATH1
+    
+    elif os.path.exists( ROOT_PATH2):
+        ROOT_PATH = ROOT_PATH2
+    
+    elif os.path.exists( ROOT_PATH3 ):
+        ROOT_PATH = ROOT_PATH3
+    
+
 else:
     ROOT_PATH = '/'.join(os.path.split(os.getcwd())[ : -1])
 
+if not os.path.exists(ROOT_PATH):
+    raise OSError("If using this package directly as a python import, please ensure you update the ROOT_PATH to the /feng_hirst_rst_parser folder")
 
 PARSED_TEXTS_PATH = os.path.join(ROOT_PATH, 'texts/parsed_texts/')
 STANFORD_PATH = os.path.join(ROOT_PATH, 'tools/stanford_parser/')
