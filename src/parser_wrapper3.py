@@ -59,7 +59,7 @@ def main(json_li_li_utterances,
     Returns:
         [type]: [description]
     """
-    parser_stdout_filepath = 'parser.stdout'
+    parser_stdout_filepath = os.devnull #'parser.stdout'
     li_li_utterances = json.loads(json_li_li_utterances)
     kwargs = {
         'verbose':verbose,

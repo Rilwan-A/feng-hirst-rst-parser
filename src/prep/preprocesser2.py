@@ -125,7 +125,13 @@ class Preprocesser:
     def sentence_splitting(self, str_utt, doc, log_writer=None):
         doc.sentences = []
         
+        #if len(str_utt)>100000:
+            # boundary2.pl is the one that operates on strings passed through terminal
         cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'), "-i", str_utt ]
+        # else:
+        #     # boundary.pl is the one that operates on saved files
+        #     cmd = ["perl", os.path.join(paths.SSPLITTER_PATH,'boundary1.pl'), "-d",os.path.join(paths.SSPLITTER_PATH,'HONORIFICS'), "-i", str_utt ]
+
         #cmd = 'perl %s -d %s -i %s' % ( os.path.join(paths.SSPLITTER_PATH,'boundary2.pl'), os.path.join(paths.SSPLITTER_PATH, 'HONORIFICS'), str_utt )
 
         p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = False)

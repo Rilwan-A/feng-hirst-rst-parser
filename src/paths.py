@@ -5,6 +5,7 @@ if "rl_conv" in os.getcwd():
     ROOT_PATH1 = "/home/u1862646/01_Mcv/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
     ROOT_PATH2 = "C:/Users/Rilwa/01_Mcv/MasteringConversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
     ROOT_PATH3 = "/home/akanni/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
+    ROOT_PATH4 = "/home/akann1w0w1ck/mastering-conversation/rl_conv/pretrain/DockerImages/feng_hirst_rst_parser/"
 
     if os.path.exists( ROOT_PATH1 ):
         ROOT_PATH = ROOT_PATH1
@@ -14,6 +15,11 @@ if "rl_conv" in os.getcwd():
     
     elif os.path.exists( ROOT_PATH3 ):
         ROOT_PATH = ROOT_PATH3
+    
+    elif os.path.exists( ROOT_PATH4 ):
+        ROOT_PATH = ROOT_PATH4    
+    else:
+        raise ValueError("Either a new system is being used for development, or pre-defined root paths were incorrectly entered")
     
 
 else:
