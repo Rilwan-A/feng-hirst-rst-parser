@@ -102,7 +102,7 @@ def main(json_li_li_utterances,
             output = li_segtext
 
         else:
-            li_parse_trees = [pt.pformat(parens='{}' ) for pt in results]
+            li_parse_trees = [pt.pformat(parens='{}' ) if pt!=None else None for pt in results]
             li_li_parse_trees.append(li_parse_trees)
             escaped_li_li_parse_trees = json.dumps(li_li_parse_trees)
             
