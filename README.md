@@ -1,10 +1,13 @@
+## Akanni96 Forked Adaptations -  
+* Original README below
+* This fork contains a few simple changes to increase the effeciency of this code.
+* * Can now be used as an imported module from a python script, without having to use cmd line
+* * Increased effeciency when RST parsing groups of texts
+
 ## DEVELOPERS
 * Original author: [Vanessa Wei Feng](mailto:weifeng@cs.toronto.edu), Department of Computer Science, University of Toronto, Canada  
 * [Arne Neumann](mailto:github+spam.or.ham@arne.cl) updated it to use nltk 3.4 on [this github repo](https://github.com/arne-cl/feng-hirst-rst-parser), and created a Dockerfile.  
 * [Zining Zhu](mailto:zining@cs.toronto.edu) updated the scripts to use Python 3.
-
-## TODO
-- [ ] update Dockerfile to use Python 3.
 
 
 ## REFERENCES
