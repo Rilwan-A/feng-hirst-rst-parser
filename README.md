@@ -1,5 +1,6 @@
 ## Akanni96 Forked Adaptations -  
 * Original README below
+* Use the Exampele_of_how_to_use.ipynb notebook to get started
 * This fork contains a few simple changes to increase the effeciency of this code.
 * * Can now be used as an imported module from a python script, without having to use cmd line
 * * Increased effeciency when RST parsing groups of texts
