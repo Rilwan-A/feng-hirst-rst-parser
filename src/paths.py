@@ -1,13 +1,15 @@
 import os.path
 import inspect
 
-if "rl_conv" in os.getcwd():
-    ROOT_PATH = "../DockerImages/feng_hirst_rst_parser/"
-else:
-    ROOT_PATH = '/'.join(os.path.split(os.getcwd())[ : -1])
+
+_ = os.path.realpath(__file__)
+__ = _.split('/')[:-2]
+ROOT_PATH = '/'.join(__)
 
 if not os.path.exists(ROOT_PATH):
-    raise OSError("If using this package directly as a python import, please ensure you update the ROOT_PATH to the /feng_hirst_rst_parser folder")
+    print(ROOT_PATH)
+    
+    raise OSError("If using this package directly as a python import, please ensure you update the ROOT_PATH to the /feng_hirst_rst_parser folder. The automated method for detecting the folder path has failed.")
 
 PARSED_TEXTS_PATH = os.path.join(ROOT_PATH, 'texts/parsed_texts/')
 STANFORD_PATH = os.path.join(ROOT_PATH, 'tools/stanford_parser/')
