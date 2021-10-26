@@ -71,10 +71,8 @@ class Preprocesser:
         if len(results) == 0:
             return [raw_sent]
                 
-
     def parse_single_sentence(self, raw_text):
         return self.syntax_parser.parse_sentence(raw_text)
-    
     
     def process_single_sentence(self, doc, raw_text, end_of_para):
         sentence = Sentence(len(doc.sentences), raw_text + (b'<s>' if not end_of_para else b'<P>'), doc)
@@ -121,7 +119,6 @@ class Preprocesser:
 
         return heads
 
-
     def sentence_splitting(self, str_utt, doc, log_writer=None):
         doc.sentences = []
         
@@ -138,7 +135,7 @@ class Preprocesser:
 
         #p.wait()
         output, errdata = p.communicate()
-        #print(output)
+
         if len(errdata) == 0:
             
             raw_paras = output.strip().split(b'\n\n')
@@ -166,11 +163,9 @@ class Preprocesser:
             
             self.process_single_sentence(doc, raw_text, end_of_para)
                 
-
     def preprocess(self, str_utt, doc, log_writer=None):
         self.sentence_splitting(str_utt, doc, log_writer)
         
-
     def unload(self):
         if self.syntax_parser:
             self.syntax_parser.unload()

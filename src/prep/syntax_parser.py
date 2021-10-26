@@ -22,11 +22,11 @@ class SyntaxParser:
         
         path_ = os.path.join(paths.STANFORD_PARSER_PATH,"*")
         
-        cmd = ['java', '-Xmx1000m', '-cp', path_ , 'ParserDemo' ]
+        self.cmd = ['java', '-Xmx1000m', '-cp', path_ , 'ParserDemo' ]
         
-        print("SyntaxParser cmd:", cmd)
+        print("SyntaxParser cmd:", self.cmd)
 
-        self.syntax_parser = subprocess.Popen(cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+        self.syntax_parser = subprocess.Popen(self.cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
     
         init = self.syntax_parser.stderr.readline()
         if not init.startswith(b'Loading parser from serialized file'):
@@ -40,10 +40,11 @@ class SyntaxParser:
         #print "%s\n" % s.strip()
         
         try:
-            self.syntax_parser.stdin.write("%s\n" % s.strip())
+            self.syntax_parser.stdin.write(b"%s\n" % s.strip())
+            
         
         except TypeError as e:
-            self.syntax_parser.stdin.write(b"%s\n" % s.strip())
+            self.syntax_parser.stdin.write("%s\n" % s.strip())
 
         except IOError as e:
             raise Exception( str(e) + " \n  string: {}".format(s) )
@@ -84,7 +85,15 @@ class SyntaxParser:
                     penn_parse_result = penn_parse_result + cur_line.strip()
             '''result = result + cur_line.strip()'''
         dep_parse_result = "\n".join(dep_parse_results).encode('utf-8')
-        
+
+        ##Close and reopen later
+        try:
+            self.syntax_parser.stdin.close()
+        except IOError as e:
+            raise Exception( str(e) + " \n  string: {}".format([l.decode('utf-8') for l in self.syntax_parser.stdout.readlines()]) )
+
+        self.syntax_parser = subprocess.Popen(self.cmd, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
+
         #return (str(penn_parse_result), '\n'.join(dep_parse_results))
         return (penn_parse_result.encode('utf-8'), '\n'.join(dep_parse_results))
     
@@ -101,7 +110,7 @@ class SyntaxParser:
     def unload(self):
         if not self.syntax_parser.poll():
             print ("Successfully unloaded syntax parser")
-            #self.syntax_parser.kill() # Only in Python 2.6+
-            self.syntax_parser.stdin.close()
-            self.syntax_parser.stdout.close()
-            self.syntax_parser.stderr.close()
+            self.syntax_parser.kill() # Only in Python 2.6+
+            # self.syntax_parser.stdin.close()
+            # self.syntax_parser.stdout.close()
+            # self.syntax_parser.stderr.close()

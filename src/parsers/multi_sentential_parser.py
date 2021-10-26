@@ -56,7 +56,11 @@ class MultiSententialParser(BaseParser):
             
             seq_prob = self.connect_stumps(best_one, doc)
         
-        doc.discourse_tree = doc.constituents[0].parse_subtree
+        if len(doc.constituents) > 0 :
+            doc.discourse_tree = doc.constituents[0].parse_subtree
+        else:
+            raise Exception
+            
 #        print doc.discourse_tree
 
 
